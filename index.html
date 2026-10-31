@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Make My Travel — Travel Planner</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="page-shell">
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Make My Travel home">
+      <span class="plane-mark">✈</span>
+      <span>
+        <span class="brand-name">Make My Travel</span>
+        <span class="brand-sub">TRAVEL PLANNER</span>
+      </span>
+    </a>
+    <button id="sign-out" class="sign-out" type="button">⇥ <span>Sign Out</span></button>
+  </header>
+
+  <main>
+    <!-- DASHBOARD VIEW -->
+    <section id="dashboard-view" class="view">
+      <div class="dashboard-top">
+        <p id="welcome">Start your first adventure</p>
+        <div class="action-btn-group">
+          <button class="outline-btn" id="goal-planner-open">✦ Plan from my goal</button>
+          <button class="primary" id="new-trip"><span>✈</span> New Trip</button>
+        </div>
+      </div>
+      <div class="route-map" aria-hidden="true">
+        <svg class="route-line" viewBox="0 0 1500 300" preserveAspectRatio="none">
+          <path d="M0 250 C180 185 230 105 360 125 S580 225 690 190 S890 40 1010 85 S1220 95 1500 175"/>
+        </svg>
+        <div class="map-stop stop-tyo"><span>TYO</span><i></i></div>
+        <div class="map-stop stop-par"><span>PAR</span><i></i></div>
+        <div class="map-stop stop-dxb"><span>DXB</span><i></i></div>
+        <div class="map-stop stop-bali"><span>Bali</span><i></i></div>
+        <div class="map-stop stop-nyc"><span>NYC</span><i></i></div>
+        <div class="sun-marker">☼</div>
+      </div>
+      <div class="empty-state" id="empty-state">
+        <div class="world-icon">✦</div>
+        <h1>Your adventure awaits</h1>
+        <p>Start planning your first trip — click <b>New Trip</b> or <b>Plan from my goal</b> above!</p>
+      </div>
+      <div class="trip-grid" id="trip-cards"></div>
+    </section>
+
+    <!-- TRIP DETAIL VIEW -->
+    <section id="trip-detail-view" class="view hidden">
+      <button class="back-link" id="back-home">← Back to dashboard</button>
+      <div class="detail-heading">
+        <div>
+          <p class="eyebrow">YOUR JOURNEY</p>
+          <h1 id="detail-title">Trip</h1>
+          <p id="detail-destination" class="detail-subtitle"></p>
+          <div id="detail-tags" class="detail-tags"></div>
+        </div>
+        <div class="detail-actions">
+          <button class="outline-btn" id="regenerate-current-trip" title="Regenerate this trip plan with updated details">⟲ Regenerate plan</button>
+          <button class="outline-btn" id="edit-current-trip">✎ Edit details</button>
+          <button class="outline-btn danger-hover" id="delete-current">Delete trip</button>
+        </div>
+      </div>
+
+      <!-- Detail Navigation Tabs -->
+      <div class="detail-nav-tabs">
+        <button class="detail-tab-btn active" data-tab="tab-itinerary">🗓️ Itinerary</button>
+        <button class="detail-tab-btn" data-tab="tab-hotels">🏨 Hotels & Stays</button>
+        <button class="detail-tab-btn" data-tab="tab-dining">🍽️ Meals & Food</button>
+        <button class="detail-tab-btn" data-tab="tab-transport">🚕 Transport</button>
+        <button class="detail-tab-btn" data-tab="tab-budget">📊 Budget & Expenses</button>
+        <button class="detail-tab-btn" data-tab="tab-tips">💡 Recommendations</button>
+        <button class="detail-tab-btn" data-tab="tab-packing">🎒 Packing List</button>
+      </div>
+
+      <!-- Tab Contents -->
+      <div class="detail-content-area">
+        <!-- 1. Itinerary Tab -->
+        <div id="tab-itinerary" class="tab-pane active">
+          <div class="detail-grid-single">
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <h2>Day-by-Day Itinerary</h2>
+                  <p class="muted">Detailed schedule with places to visit and activities.</p>
+                </div>
+              </div>
+              <form id="activity-form" class="stack-form">
+                <div class="activity-form-row">
+                  <label>Day #
+                    <input id="activity-day" type="number" min="1" value="1" required>
+                  </label>
+                  <label>Time
+                    <input id="activity-time" placeholder="e.g. 10:00 AM">
+                  </label>
+                  <label class="flex-grow">Activity or Place to Visit
+                    <input id="activity-name" placeholder="e.g. Visit local landmarks & market" required>
+                  </label>
+                  <button class="primary" type="submit" style="align-self:end">Add activity</button>
+                </div>
+              </form>
+              <div id="itinerary-list"></div>
+            </section>
+          </div>
+        </div>
+
+        <!-- 2. Hotels Tab -->
+        <div id="tab-hotels" class="tab-pane">
+          <section class="panel">
+            <h2>Suggested Hotels & Areas to Stay</h2>
+            <p class="muted">Top recommended neighborhoods and accommodations within your travel style.</p>
+            <div id="detail-stay-areas" class="stay-areas-box"></div>
+            <div id="detail-hotels-list" class="hotel-grid"></div>
+          </section>
+        </div>
+
+        <!-- 3. Dining Tab -->
+        <div id="tab-dining" class="tab-pane">
+          <section class="panel">
+            <h2>Dining & Must-Try Local Foods</h2>
+            <p class="muted">Breakfast, lunch, and dinner recommendations plus iconic regional dishes.</p>
+            <div id="detail-meals-box" class="meals-overview"></div>
+            <h3 style="margin:24px 0 12px;font-family:'Playfair Display',Georgia,serif">Local Foods to Try</h3>
+            <div id="detail-foods-list" class="food-grid"></div>
+          </section>
+        </div>
+
+        <!-- 4. Transport Tab -->
+        <div id="tab-transport" class="tab-pane">
+          <section class="panel">
+            <h2>Transport Options & Estimated Costs</h2>
+            <p class="muted">Airport/station transfers, daily transit options, fares, and local navigation guidance.</p>
+            <div id="detail-transport-content"></div>
+          </section>
+        </div>
+
+        <!-- 5. Budget Tab -->
+        <div id="tab-budget" class="tab-pane">
+          <div class="detail-grid">
+            <section class="panel">
+              <h2>Budget Breakdown</h2>
+              <p class="muted">Estimated allocations across travel categories for this trip.</p>
+              <div id="detail-budget-bars"></div>
+            </section>
+            <section class="panel">
+              <h2>Expense Tracker</h2>
+              <p class="muted">Track actual spending against your allocated budget.</p>
+              <div id="budget-total" class="budget-total"></div>
+              <form id="expense-form" class="inline-form">
+                <input id="expense-name" placeholder="Expense name (e.g. Airport Taxi)" required>
+                <input id="expense-amount" type="number" min="0" step=".01" placeholder="Amount" required>
+                <button class="primary">Add</button>
+              </form>
+              <div id="expense-list"></div>
+            </section>
+          </div>
+        </div>
+
+        <!-- 6. Recommendations Tab -->
+        <div id="tab-tips" class="tab-pane">
+          <section class="panel">
+            <h2>Recommendations Within Your Budget</h2>
+            <p class="muted">Feasibility analysis and smart insider tips tailored to this trip's budget and destination.</p>
+            <div id="detail-recommendations-content"></div>
+          </section>
+        </div>
+
+        <!-- 7. Packing List Tab -->
+        <div id="tab-packing" class="tab-pane">
+          <section class="panel">
+            <h2>Packing Checklist</h2>
+            <p class="muted">Essential travel items tailored to your trip focus.</p>
+            <form id="packing-form" class="inline-form">
+              <input id="packing-name" placeholder="Add an item (e.g. Passport, Power Adapter)" required>
+              <button class="primary">Add</button>
+            </form>
+            <div id="packing-list"></div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span class="footer-plane">✈</span> MAKE MY TRAVEL — SMART AUTOMATIC TRAVEL PLANNER
+  </footer>
+</div>
+
+<button class="assistant-bubble" id="free-info" title="Free mode — no paid APIs">✧</button>
+
+<!-- EDIT TRIP DETAILS DIALOG -->
+<dialog id="edit-trip-dialog">
+  <form id="edit-trip-form" method="dialog">
+    <button type="button" class="close" id="close-edit-trip" aria-label="Close">×</button>
+    <h1>Edit Journey Details</h1>
+    <p class="dialog-subtitle">Update destination, dates, budget, travelers, or travel style for this trip</p>
+    
+    <label>TRIP NAME <em>*</em>
+      <input id="edit-trip-name" required>
+    </label>
+    <label>DESTINATION <em>*</em>
+      <input id="edit-trip-destination" required>
+    </label>
+    <div class="two">
+      <label>START DATE
+        <input id="edit-trip-start" type="date">
+      </label>
+      <label>END DATE
+        <input id="edit-trip-end" type="date">
+      </label>
+    </div>
+    <div class="two budget-row">
+      <label>BUDGET <em>*</em>
+        <input id="edit-trip-budget" type="number" min="1" required>
+      </label>
+      <label>CURRENCY <em>*</em>
+        <select id="edit-trip-currency">
+          <option value="USD">USD ($)</option>
+          <option value="INR">INR (₹)</option>
+          <option value="EUR">EUR (€)</option>
+          <option value="GBP">GBP (£)</option>
+          <option value="JPY">JPY (¥)</option>
+          <option value="AUD">AUD (A$)</option>
+          <option value="CAD">CAD (C$)</option>
+          <option value="AED">AED</option>
+          <option value="SGD">SGD (S$)</option>
+          <option value="THB">THB (฿)</option>
+        </select>
+      </label>
+    </div>
+    <div class="two">
+      <label>NUMBER OF TRAVELLERS
+        <input id="edit-trip-travelers" type="number" min="1" max="20" required>
+      </label>
+      <label>TRAVEL STYLE
+        <select id="edit-trip-style">
+          <option value="budget">Budget-Friendly</option>
+          <option value="balanced">Balanced</option>
+          <option value="comfort">Luxury / Comfort</option>
+        </select>
+      </label>
+    </div>
+    <label>TRIP TYPE / FOCUS
+      <select id="edit-trip-kind">
+        <option value="mix">A bit of everything (Balanced)</option>
+        <option value="beach">Beach & Relaxation</option>
+        <option value="culture">Culture, History & Heritage</option>
+        <option value="nature">Nature, Mountains & Adventure</option>
+        <option value="food">Food & Culinary Markets</option>
+        <option value="family">Family & Leisurely Pacing</option>
+        <option value="romantic">Romantic & Scenic</option>
+      </select>
+    </label>
+    <label>TRAVEL PREFERENCES & NOTES
+      <textarea id="edit-trip-notes"></textarea>
+    </label>
+    <div class="dialog-actions">
+      <button type="button" class="outline-btn" id="cancel-edit-trip">Cancel</button>
+      <button class="primary" type="submit">Save Changes</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- AUTOMATIC JOURNEY PLANNER DIALOG (FOR EVERY NEW TRIP) -->
+<dialog id="planner-dialog">
+  <form id="goal-form" class="planner-dialog" method="dialog">
+    <button type="button" class="close" id="close-planner" aria-label="Close">×</button>
+    <p class="eyebrow">AUTOMATIC SMART TRIP PLANNER</p>
+    <h1>Plan a new journey</h1>
+    <p class="dialog-subtitle">Enter your destination, dates, budget and travel preferences. We will automatically generate a complete customised plan with day-by-day itinerary, hotels, dining, transport, and budget breakdown.</p>
+    
+    <div class="planner-grid">
+      <label>DESTINATION <em>*</em>
+        <input id="goal-destination" placeholder="e.g. Paris, Bali, Hassan, Goa, Tokyo, Dubai, Manali..." required>
+      </label>
+      <label>DEPARTURE CITY (optional)
+        <input id="goal-origin" placeholder="e.g. Bengaluru, New York, London, Mumbai">
+      </label>
+
+      <div class="two full-grid-span">
+        <label>START DATE
+          <input id="goal-start" type="date">
+        </label>
+        <label>END DATE
+          <input id="goal-end" type="date">
+        </label>
+      </div>
+
+      <label>TOTAL BUDGET <em>*</em>
+        <input id="goal-budget" type="number" min="1" placeholder="Enter total budget (e.g. 2000)" required>
+      </label>
+      <label>CURRENCY <em>*</em>
+        <select id="goal-currency">
+          <option value="USD">USD ($)</option>
+          <option value="INR">INR (₹)</option>
+          <option value="EUR">EUR (€)</option>
+          <option value="GBP">GBP (£)</option>
+          <option value="JPY">JPY (¥)</option>
+          <option value="AUD">AUD (A$)</option>
+          <option value="CAD">CAD (C$)</option>
+          <option value="AED">AED</option>
+          <option value="SGD">SGD (S$)</option>
+          <option value="THB">THB (฿)</option>
+        </select>
+      </label>
+
+      <label>TRIP LENGTH (DAYS) <em>*</em>
+        <input id="goal-days" type="number" min="1" max="14" value="5" required>
+      </label>
+      <label>NUMBER OF TRAVELLERS <em>*</em>
+        <input id="goal-travelers" type="number" min="1" max="20" value="2" required>
+      </label>
+
+      <label>TRAVEL STYLE <em>*</em>
+        <select id="goal-style">
+          <option value="budget">Budget-Friendly (Hostels/guesthouses, local transit, smart savings)</option>
+          <option value="balanced" selected>Balanced (Comfortable hotels, mix of experiences)</option>
+          <option value="comfort">Luxury / Comfort (4-5★ stays, private cabs, fine dining)</option>
+        </select>
+      </label>
+      <label>TRIP TYPE / FOCUS <em>*</em>
+        <select id="goal-kind">
+          <option value="mix" selected>A bit of everything (Balanced)</option>
+          <option value="beach">Beach & Relaxation</option>
+          <option value="culture">Culture, History & Heritage</option>
+          <option value="nature">Nature, Mountains & Adventure</option>
+          <option value="food">Food & Culinary Markets</option>
+          <option value="family">Family & Leisurely Pacing</option>
+          <option value="romantic">Romantic & Scenic</option>
+        </select>
+      </label>
+
+      <label class="full-grid-span">TRIP NAME (optional)
+        <input id="goal-trip-name" placeholder="Leave empty to auto-name, or e.g. Summer Heritage Journey">
+      </label>
+    </div>
+
+    <label>TRAVEL PREFERENCES & GOALS (optional)
+      <textarea id="goal-notes" placeholder="e.g. Ancient architecture, scenic viewpoints, love seafood, relaxed mornings, vegetarian dining..."></textarea>
+    </label>
+
+    <button class="primary generate-btn" type="submit" id="generate-plan-btn">
+      ✦ Generate Trip Plan
+    </button>
+    <p class="small-note">100% free built-in JavaScript planner. Dynamically generates custom itineraries, hotels, meals, transport estimates, and budget breakdown for any destination without paid APIs or external keys.</p>
+  </form>
+</dialog>
+
+<!-- GENERATED PLAN RESULTS DIALOG -->
+<dialog id="results-dialog">
+  <div class="planner-dialog results-container">
+    <button type="button" class="close" id="close-results" aria-label="Close">×</button>
+    <div class="results-header">
+      <p class="eyebrow">YOUR CUSTOMISED TRIP PLAN</p>
+      <h1 id="results-title">Your Trip Plan</h1>
+      <div id="results-meta-chips" class="meta-chips"></div>
+    </div>
+
+    <!-- Results Top Actions Bar -->
+    <div class="results-action-bar">
+      <button class="outline-btn" id="results-edit-toggle" type="button">✎ Edit Plan</button>
+      <button class="outline-btn" id="results-tweak-btn" type="button">⟲ Adjust Settings</button>
+      <button class="primary" id="save-generated-trip" type="button">💾 Save Trip to Dashboard</button>
+    </div>
+
+    <!-- Main Results Content -->
+    <div id="planner-results" class="planner-results"></div>
+
+    <!-- Results Bottom Actions Bar -->
+    <div class="dialog-actions results-footer-actions">
+      <button class="outline-btn" id="results-close-bottom" type="button">Close</button>
+      <button class="primary" id="save-generated-trip-bottom" type="button">💾 Save Trip to Dashboard</button>
+    </div>
+    <p class="small-note">This plan is generated dynamically for this specific trip. You can edit any activity or save it directly to your dashboard.</p>
+  </div>
+</dialog>
+
+<div id="toast" role="status"></div>
+<script src="app.js"></script>
+</body>
+</html>
